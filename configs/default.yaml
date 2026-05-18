@@ -1,0 +1,35 @@
+project:
+  name: "Self-Evolving Multimodal Knowledge Conflict Detection and Resolution Framework"
+  seed: 42
+
+paths:
+  experience_bank_path: "experience_bank/experience_bank.json"
+  output_dir: "outputs"
+
+data:
+  image_root: "./"
+  max_images: 2
+
+retrieval:
+  min_similarity: 0.5
+  use_sentence_transformers: false
+  sentence_transformer_model: "all-MiniLM-L6-v2"
+
+models:
+  main_model:
+    type: "huggingface_vlm"
+    model_name_or_path: "/root/autodl-tmp/project_coding/Qwen3-VL-8B-Instruct"
+    device: "cuda"
+    torch_dtype: "auto"
+  auxiliary_model:
+    type: "llm_judge"
+    model_name_or_path: ""
+
+pipeline:
+  final_answer_when_no_conflict: "with_external"
+  save_no_conflict_experience: false
+  update_when_experience_used: false
+  backup_experience_bank: true
+
+logging:
+  level: "INFO"

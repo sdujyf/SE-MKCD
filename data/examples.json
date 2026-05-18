@@ -1,0 +1,48 @@
+[
+    {
+        "instance": "Sunflower",
+        "category": "ER",
+        "knowledge": "This is an image of Sunflower. The common sunflower is a large annual forb of the genus Helianthus. It is commonly grown as a crop for its edible oily seeds. Apart from cooking oil production, it is also used as livestock forage, as bird food, and in some industrial applications.",
+        "image_path": [
+            "image/Sunflower/Sunflower_1.jpg",
+            "image/Sunflower/Sunflower_5.jpg",
+            "image/Sunflower/Sunflower_7.jpg"
+        ],
+        "conflict_knowledge": "This is an image of Marigold. The common marigold is a flowering plant in the daisy family. It is widely cultivated as an ornamental plant and is known for its bright orange and yellow flowers.",
+        "open_query": "What is this plant in the image?",
+        "open_groundtruth": "Sunflower",
+        "conflict_openanswer": "Marigold",
+        "mcq_query": "What is this plant in the image? Answers: A) Sunflower B) Dandelion C) Black-eyed Susan D) Marigold",
+        "mcq_groundtruth": "A",
+        "conflict_mcqanswer": "D",
+        "ID": 0
+    },
+    {
+        "instance": "Elon Musk",
+        "category": "person",
+        "knowledge": "This is an image of Elon Musk. Elon Musk is a businessman and entrepreneur known for founding SpaceX and co-founding Tesla. He was born on June 28, 1971 in Pretoria, South Africa.",
+        "image_path": "image/ElonMusk/musk_1.jpg",
+        "conflict_knowledge": "Elon Musk was born in 1972. According to some early biographies, his birth year was misreported for many years.",
+        "open_query": "What year was the person in the image born?",
+        "open_groundtruth": "1971",
+        "conflict_openanswer": "1972",
+        "mcq_query": "What year was Elon Musk born? A) 1970 B) 1971 C) 1972 D) 1973",
+        "mcq_groundtruth": "B",
+        "conflict_mcqanswer": "C",
+        "ID": 1
+    },
+    {
+        "instance": "Eiffel Tower",
+        "category": "landmark",
+        "knowledge": "This is an image of the Eiffel Tower. The Eiffel Tower is a wrought-iron lattice tower on the Champ de Mars in Paris, France. It was constructed from 1887 to 1889.",
+        "image_path": "image/EiffelTower/eiffel_1.jpg",
+        "conflict_knowledge": "The Eiffel Tower was completed in 1890. Some historical records suggest construction delays pushed the completion date back by one year.",
+        "open_query": "In what year was the structure in the image completed?",
+        "open_groundtruth": "1889",
+        "conflict_openanswer": "1890",
+        "mcq_query": "When was the Eiffel Tower completed? A) 1887 B) 1888 C) 1889 D) 1890",
+        "mcq_groundtruth": "C",
+        "conflict_mcqanswer": "D",
+        "ID": 2
+    }
+]
