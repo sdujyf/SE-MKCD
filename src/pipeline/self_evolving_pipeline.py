@@ -122,6 +122,22 @@ class SelfEvolvingConflictPipeline:
 
         return result
 
+    @staticmethod
+    def _trim_experiences(experiences: list[dict]) -> list[dict]:
+        """Keep only the fields relevant for guiding inference.
+
+        Drops metadata (experience_id, created_at), raw outputs, and
+        confidence scores — keeping question, final answer, and summary.
+        """
+        trimmed = []
+        for exp in experiences:
+            trimmed.append({
+                "question": exp.get("question", ""),
+                "final_answer": exp.get("answer3_final") or exp.get("final_decision", ""),
+                "summary": exp.get("summary", ""),
+            })
+        return trimmed
+
     def _run_experience_guided(
         self,
         result: PipelineResultSchema,
@@ -132,10 +148,11 @@ class SelfEvolvingConflictPipeline:
         retrieval_results: list[dict],
     ) -> None:
         """Run experience-guided inference when experience retrieval hits."""
-        # Collect all experiences from retrieval results
         all_experiences = []
         for rr in retrieval_results:
             all_experiences.extend(rr.get("experiences", []))
+
+        all_experiences = self._trim_experiences(all_experiences)
 
         output = self.main_model.generate_with_experience(
             image_paths=image_paths,
