@@ -25,6 +25,10 @@ models:
     type: "llm_judge"
     model_name_or_path: ""
 
+experience_bank:
+  dedup_enabled: true
+  dedup_threshold: 0.85
+
 pipeline:
   final_answer_when_no_conflict: "with_external"
   save_no_conflict_experience: false

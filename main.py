@@ -125,7 +125,13 @@ def run_pipeline(args: argparse.Namespace) -> None:
     # Experience bank
     bank_path = config.get("paths", {}).get("experience_bank_path", "experience_bank/experience_bank.json")
     backup = config.get("pipeline", {}).get("backup_experience_bank", True)
-    experience_bank = ExperienceBank(bank_path=bank_path, backup=backup)
+    bank_cfg = config.get("experience_bank", {})
+    experience_bank = ExperienceBank(
+        bank_path=bank_path,
+        backup=backup,
+        dedup_enabled=bank_cfg.get("dedup_enabled", True),
+        dedup_threshold=bank_cfg.get("dedup_threshold", 0.85),
+    )
 
     stats = experience_bank.get_statistics()
     logger.info("Experience bank stats: %s", stats)

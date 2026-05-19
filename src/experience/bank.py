@@ -23,21 +23,35 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Optional
 
+from .utils import compute_token_overlap
+
 logger = logging.getLogger(__name__)
 
 
 class ExperienceBank:
     """Persistent, self-evolving experience bank backed by a JSON file."""
 
-    def __init__(self, bank_path: str, backup: bool = True):
+    def __init__(
+        self,
+        bank_path: str,
+        backup: bool = True,
+        dedup_enabled: bool = True,
+        dedup_threshold: float = 0.85,
+    ):
         """Initialize the experience bank.
 
         Args:
             bank_path: Path to the experience bank JSON file.
             backup: Whether to create a .bak backup before each save.
+            dedup_enabled: If True, skip adding experiences whose question
+                is too similar to an existing one in the same knowledge point.
+            dedup_threshold: Token overlap threshold (0.0-1.0) for considering
+                two questions as duplicates. Higher = stricter.
         """
         self.bank_path = Path(bank_path)
         self.backup = backup
+        self.dedup_enabled = dedup_enabled
+        self.dedup_threshold = dedup_threshold
         self._data: dict[str, Any] = {}
         self._load()
 
@@ -147,6 +161,17 @@ class ExperienceBank:
 
         kp = kps[knowledge_point]
 
+        # Deduplicate by question similarity + same final answer
+        if self.dedup_enabled:
+            new_question = experience.get("question", "")
+            new_answer = experience.get("answer3_final") or experience.get("final_decision", "")
+            if new_question and self._is_duplicate(new_question, new_answer, kp["experiences"]):
+                logger.info(
+                    "Skipped duplicate experience for entity '%s' / kp '%s' (question overlap >= %.2f, same answer)",
+                    entity_name, knowledge_point, self.dedup_threshold,
+                )
+                return
+
         # Merge question patterns (deduplicate)
         existing_patterns = set(kp.get("question_patterns", []))
         for p in question_patterns:
@@ -198,6 +223,37 @@ class ExperienceBank:
             "total_knowledge_points": total_kps,
             "total_experiences": total_experiences,
         }
+
+    def _is_duplicate(self, new_question: str, new_answer: str, existing_experiences: list[dict]) -> bool:
+        """Check if a new experience duplicates an existing one.
+
+        Two experiences are duplicates when both:
+        - Their questions have token overlap >= dedup_threshold.
+        - Their final answers are the same.
+
+        Args:
+            new_question: The question from the new experience.
+            new_answer: The final answer from the new experience (answer3_final / final_decision).
+            existing_experiences: List of existing experience dicts in the knowledge point.
+
+        Returns:
+            True if a duplicate is found.
+        """
+        for exp in existing_experiences:
+            old_question = exp.get("question", "")
+            if not old_question:
+                continue
+            question_score = compute_token_overlap(new_question, old_question)
+            if question_score < self.dedup_threshold:
+                continue
+            # Same question pattern + same final answer = duplicate
+            old_answer = exp.get("answer3_final") or exp.get("final_decision", "")
+            if new_answer and old_answer and new_answer.strip().lower() == old_answer.strip().lower():
+                return True
+            # Fallback: if answers are missing, treat high-scoring question alone as duplicate
+            if not new_answer and not old_answer:
+                return True
+        return False
 
     def to_dict(self) -> dict:
         """Return a deep copy of the bank data."""
